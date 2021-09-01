@@ -1,19 +1,14 @@
-package main
+package controllers
 
 import (
+	models "Pokemon-API/Models"
+	pokemon "Pokemon-API/Pokemon"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
-
-	_ "github.com/go-sql-driver/mysql"
 )
-
-type Controller struct {
-	db  *sql.DB
-	err error
-}
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
@@ -21,26 +16,14 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(response)
 }
 
-func (c *Controller) connect() *sql.DB {
-	c.db, c.err = sql.Open("mysql", "root@tcp(127.0.0.1:3306)/db_pokemon")
-
-	if c.err != nil {
-		panic(c.err.Error())
-	}
-
-	return c.db	
-}
-
-func (c *Controller) GetAllPokemons(w http.ResponseWriter, r *http.Request) {
+func GetAllPokemons(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-
-		pokemons, err := getPokemons(c.db)
+		pokemons, err := models.GetPokemons()
 
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -51,13 +34,12 @@ func (c *Controller) GetAllPokemons(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (c *Controller) GetPokemonByID(w http.ResponseWriter, r *http.Request) {
+func GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-
 		var pokemonId, _ = strconv.Atoi(r.FormValue("id"))
-		var pokemon = Pokemon{Id: pokemonId}
+		var pokemon = pokemon.PokemonFiled{Id: pokemonId}
 
-		err := pokemon.getPokemonById(c.db)
+		err := models.GetPokemonById(&pokemon)
 
 		if err != nil {
 			switch {
@@ -71,23 +53,21 @@ func (c *Controller) GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 	
 		respondWithJSON(w, http.StatusOK, pokemon)
 	} else if r.Method == "POST" {
-		c.AddNewPokemon(w, r)
+		AddNewPokemon(w, r)
 	}
 }
 
-func (c *Controller) AddNewPokemon(w http.ResponseWriter, r *http.Request) {
-
+func AddNewPokemon(w http.ResponseWriter, r *http.Request) {
 	newPoke := json.NewDecoder(r.Body)
-	
-	var pokemon Pokemon
-	c.err = newPoke.Decode(&pokemon)
+	var pokemon pokemon.PokemonFiled
+	err := newPoke.Decode(&pokemon)
 
-	if c.err != nil {
-		respondWithError(w, http.StatusInternalServerError, c.err.Error())
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	err := pokemon.addNewPokemon(c.db)
+	err = models.AddNewPokemon(&pokemon)
 
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -101,12 +81,12 @@ func route(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Pokemon API")
 }
 
-func (c *Controller) endpointsHandler() {
+func EndpointsHandler() {
 	http.HandleFunc("/", route)
-	http.HandleFunc("/pokemons", c.GetAllPokemons)
-	http.HandleFunc("/pokemon", c.GetPokemonByID)
+	http.HandleFunc("/pokemons", GetAllPokemons)
+	http.HandleFunc("/pokemon", GetPokemonByID)
 }
 
-func run() {
+func Run() {
 	http.ListenAndServe(":8080", nil)
 }

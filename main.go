@@ -1,12 +1,14 @@
 package main
 
+import (
+	controllers "Pokemon-API/Controllers"
+	models "Pokemon-API/Models"
+)
+
 func main() {
-	c := Controller{}
-	c.db = c.connect()
+	db := models.Connect()
+	defer db.Close()
 
-	defer c.db.Close()
-
-	c.endpointsHandler()
-
-	run()
+	controllers.EndpointsHandler()
+	controllers.Run()
 }

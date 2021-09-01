@@ -1,20 +1,19 @@
-package main
+package main_test
 
 import (
+	controllers "Pokemon-API/Controllers"
+	models "Pokemon-API/Models"
 	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-var c Controller
-
 func TestMain(m *testing.M) {
-	c = Controller{}
-	c.db = c.connect()
-	defer c.db.Close()
+	db := models.Connect()
+	defer db.Close()
 
-	c.db.Exec("TRUNCATE pokemon")
+	db.Exec("TRUNCATE pokemon")
 
 	m.Run()
 }
@@ -26,7 +25,7 @@ func TestEmptyTable(t *testing.T) {
 	}
 
 	response := httptest.NewRecorder()
-	handler := http.HandlerFunc(c.GetAllPokemons)
+	handler := http.HandlerFunc(controllers.GetAllPokemons)
 	handler.ServeHTTP(response, request)
 
 	if actual := response.Code; actual != http.StatusOK {
@@ -41,7 +40,7 @@ func TestEmptyTable(t *testing.T) {
 }
 
 func TestAddNewPokemon(t *testing.T) {
-	newPokemon := []byte(`{"Id": 1,"Name": "Rattata","Species": "Mouse Pokémon"}`)
+	newPokemon := []byte(`{"id":1,"name":"Rattata","species":"Mouse Pokémon"}`)
 
 	request, err := http.NewRequest("POST", "/pokemon", bytes.NewBuffer(newPokemon))
 
@@ -51,7 +50,7 @@ func TestAddNewPokemon(t *testing.T) {
 
 	request.Header.Set("Content-Type", "application/json")
 	response := httptest.NewRecorder()
-	handler := http.HandlerFunc(c.AddNewPokemon)
+	handler := http.HandlerFunc(controllers.AddNewPokemon)
 	handler.ServeHTTP(response, request)
 
 	if actual := response.Code; actual != http.StatusOK {
@@ -77,7 +76,7 @@ func TestGetPokemonById(t *testing.T) {
 	request.URL.RawQuery = pokemonId.Encode()
 
 	response := httptest.NewRecorder()
-	handler := http.HandlerFunc(c.GetPokemonByID)
+	handler := http.HandlerFunc(controllers.GetPokemonByID)
 	handler.ServeHTTP(response, request)
 
 	if actual := response.Code; actual != http.StatusOK {

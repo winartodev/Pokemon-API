@@ -3,25 +3,20 @@ package models
 import (
 	pokemon "Pokemon-API/Pokemon"
 	"database/sql"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
-var db  *sql.DB
-var err error
-
-func Connect() *sql.DB {
-	db, err = sql.Open("mysql", "root@tcp(127.0.0.1:3306)/db_pokemon")
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return db	
+type PokemonMysql struct {
+	DB  *sql.DB
 }
 
-func GetPokemons() ([]pokemon.PokemonFiled, error) {
-	rows, err := db.Query("SELECT * FROM pokemon")
+func Connect(db *sql.DB) pokemon.PokemonInterface {
+	return &PokemonMysql {
+		DB: db,
+	}
+}
+
+func (m *PokemonMysql) GetPokemons() ([]pokemon.PokemonFiled, error) {
+	rows, err := m.DB.Query("SELECT * FROM pokemon")
 
 	if err != nil {
 		return nil, err
@@ -37,7 +32,7 @@ func GetPokemons() ([]pokemon.PokemonFiled, error) {
 		err := rows.Scan(&p.Id, &p.Name, &p.Species)
 
 		if err != nil {
-			panic(err.Error())
+			return nil, err
 		}
 
 		pokemons = append(pokemons, p)
@@ -50,12 +45,21 @@ func GetPokemons() ([]pokemon.PokemonFiled, error) {
 	return pokemons, nil
 }
 
-func GetPokemonById(p *pokemon.PokemonFiled) error {
-	return db.QueryRow("SELECT * FROM pokemon WHERE id = ?", p.Id).Scan(&p.Id, &p.Name, &p.Species)
+func (m *PokemonMysql) GetPokemonById(id int) (*pokemon.PokemonFiled, error) {
+	var p pokemon.PokemonFiled
+	err := m.DB.QueryRow("SELECT * FROM pokemon WHERE id = ?", id).Scan(&p.Id, &p.Name, &p.Species)
+	if err != nil {
+		switch {
+		case err == sql.ErrNoRows:
+			return nil, err
+		}
+	}
+	
+	return &p, nil
 }
 
-func AddNewPokemon(p  *pokemon.PokemonFiled) error {
-	statement, err := db.Prepare("INSERT INTO pokemon(id, name, species) VALUES(?, ?, ?)")
+func (m *PokemonMysql) AddPokemon(p *pokemon.PokemonFiled) error {
+	statement, err := m.DB.Prepare("INSERT INTO pokemon (id, name, species) VALUES (?, ?, ?)")
 
 	if err != nil {
 		return err

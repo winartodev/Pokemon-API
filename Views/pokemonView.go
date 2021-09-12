@@ -84,14 +84,14 @@ func (v *PokemonView) AddPokemon(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		id, err := v.pokemonController.AddPokemon(&pokemon)
+		row, err := v.pokemonController.AddPokemon(&pokemon)
 
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		respondWithJSON(w, http.StatusOK, fmt.Sprintf("Id Pokemon %v Created", id))
+		respondWithJSON(w, http.StatusOK, fmt.Sprintf("Id Pokemon %v Created", row.Id))
 	}
 }
 

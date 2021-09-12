@@ -53,27 +53,28 @@ func (m *PokemonMysql) GetPokemonById(id int) (*pokemon.PokemonFiled, error) {
 		case err == sql.ErrNoRows:
 			return nil, err
 		}
+		return nil, err
 	}
 	
 	return &p, nil
 }
 
-func (m *PokemonMysql) AddPokemon(p *pokemon.PokemonFiled) error {
+func (m *PokemonMysql) AddPokemon(p *pokemon.PokemonFiled) (*pokemon.PokemonFiled, error) {
 	statement, err := m.DB.Prepare("INSERT INTO pokemon (id, name, species) VALUES (?, ?, ?)")
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	result, err := statement.Exec(&p.Id, &p.Name, &p.Species)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if rowAffected, _ := result.RowsAffected(); rowAffected == 1 {
-		return nil
+		return p, nil
 	}
 
-	return nil
+	return p, nil
 } 

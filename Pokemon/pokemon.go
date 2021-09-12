@@ -9,11 +9,11 @@ type PokemonFiled struct {
 type PokemonInterface interface {
 	GetPokemons() ([]PokemonFiled, error)
 	GetPokemonById(id int) (*PokemonFiled, error)
-	AddPokemon(data *PokemonFiled) error
+	AddPokemon(data *PokemonFiled) (*PokemonFiled, error)
 }
 
 type PokemonController interface {
 	GetPokemons() ([]PokemonFiled, error)
 	GetPokemonById(id int) (*PokemonFiled, error)
-	AddPokemon(data *PokemonFiled) (id int, err error)
+	AddPokemon(data *PokemonFiled) (*PokemonFiled, error)
 }

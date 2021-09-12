@@ -27,7 +27,7 @@ func (c *PokemonController) GetPokemonById(id int) (*pokemon.PokemonFiled, error
 	return row, nil
 }
 
-func (c *PokemonController) AddPokemon(data *pokemon.PokemonFiled) (id int, err error) {
-	err = c.pokemonInf.AddPokemon(data)
-	return data.Id, err
+func (c *PokemonController) AddPokemon(data *pokemon.PokemonFiled) (*pokemon.PokemonFiled, error) {
+	p, err := c.pokemonInf.AddPokemon(data)
+	return p, err
 }

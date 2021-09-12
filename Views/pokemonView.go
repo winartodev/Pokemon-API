@@ -54,17 +54,17 @@ func (v *PokemonView) GetPokemonById(w http.ResponseWriter, r *http.Request) {
 		id, _ := strconv.Atoi(r.FormValue("id"))
 
 		row, err := v.pokemonController.GetPokemonById(id)
+
+		if row == nil {
+			message := fmt.Sprintf("Id %v Not Found", id)
+			respondWithError(w, http.StatusNotFound, message)
+			return
+		} 
 		
 		if err != nil { 
 			respondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-
-		if row == nil {
-			message := fmt.Sprintf("Id %v Not Found", id)
-			respondWithError(w, http.StatusInternalServerError, message)
-			return
-		} 
 
 		respondWithJSON(w, http.StatusOK, &row)
 		

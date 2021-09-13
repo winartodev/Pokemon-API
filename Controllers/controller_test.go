@@ -16,7 +16,7 @@ import (
 
 type Test struct {
 	Name 			string
-	MockPokemon		*[]pokemon.PokemonFiled
+	MockPokemon		*[]pokemon.Entity
 	ErrorMessage	error
 	Expected 		string
 }
@@ -25,34 +25,34 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 	tests := []Test{
 		{
 			Name: "Get Pokemon 6 Row Success ",
-			MockPokemon: &[]pokemon.PokemonFiled{
+			MockPokemon: &[]pokemon.Entity{
 				{
-					Id: 1,
+					ID: 1,
 					Name: "Bulbasaur",
 					Species: "Seed Pokémon",
 				},
 				{
-					Id: 2,
+					ID: 2,
 					Name: "Charmander",
 					Species: "Lizard Pokémon",
 				},
 				{
-					Id: 3,
+					ID: 3,
 					Name: "Squirtle",
 					Species: "Tiny Turtle Pokémon",
 				},
 				{
-					Id: 4,
+					ID: 4,
 					Name: "Raticate",
 					Species: "Mouse Pokémon",
 				},
 				{
-					Id: 5,
+					ID: 5,
 					Name: "Rattata",
 					Species: "Mouse Pokémon",
 				},
 				{
-					Id: 6,
+					ID: 6,
 					Name: "Rattata",
 					Species: "Mouse Pokémon",
 				},
@@ -62,9 +62,9 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 		},
 		{
 			Name: "Get Pokemon 1 Row Success ",
-			MockPokemon: &[]pokemon.PokemonFiled{
+			MockPokemon: &[]pokemon.Entity{
 				{	
-					Id: 1,
+					ID: 1,
 					Name: "Pikachu",
 					Species: "Mouse",
 				},
@@ -74,7 +74,7 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 		},
 		{
 			Name: "Get Pokemon Empty Row Success",
-			MockPokemon: &[]pokemon.PokemonFiled{},
+			MockPokemon: &[]pokemon.Entity{},
 			ErrorMessage: nil,
 			Expected: `[]`,
 		},
@@ -82,7 +82,7 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.Name, func(t *testing.T) {
-			mockListPokemon := make([]pokemon.PokemonFiled, 0)
+			mockListPokemon := make([]pokemon.Entity, 0)
 			mockListPokemon = append(mockListPokemon, *tc.MockPokemon...)
 
 			mockPokemonController := &mocks.PokemonControllerMock{Mock: mock.Mock{}}
@@ -102,9 +102,9 @@ func TestPokemonView_GetPokemons_Failed(t *testing.T) {
 	tests := []Test{
 		{
 			Name: "Get Pokemon Failed",
-			MockPokemon: &[]pokemon.PokemonFiled{
+			MockPokemon: &[]pokemon.Entity{
 				{
-					Id: 1,
+					ID: 1,
 					Name: "Pikachu",
 					Species: "Mouse",
 				},
@@ -116,7 +116,7 @@ func TestPokemonView_GetPokemons_Failed(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.Name, func(t *testing.T) {
-			mockListPokemon := make([]pokemon.PokemonFiled, 0)
+			mockListPokemon := make([]pokemon.Entity, 0)
 			mockListPokemon = append(mockListPokemon, *tc.MockPokemon...)
 
 			mockPokemonController := &mocks.PokemonControllerMock{Mock: mock.Mock{}}
@@ -132,12 +132,12 @@ func TestPokemonView_GetPokemons_Failed(t *testing.T) {
 	}
 }
 
-func TestPokemonController_GetPokemonById(t *testing.T) {
+func TestPokemonController_GetPokemonByID(t *testing.T) {
 	tests := []Test{
 		{
 			Name: "Get Pokemon By Id Success",
-			MockPokemon: &[]pokemon.PokemonFiled {
-				{	Id: 1,
+			MockPokemon: &[]pokemon.Entity {
+				{	ID: 1,
 					Name: "Pikachu",
 					Species: "Mouse",
 				},
@@ -147,14 +147,14 @@ func TestPokemonController_GetPokemonById(t *testing.T) {
 	}
 	
 	for _, tc := range tests {
-			mockListPokemon := make([]pokemon.PokemonFiled, 0)
+			mockListPokemon := make([]pokemon.Entity, 0)
 			mockListPokemon = append(mockListPokemon, *tc.MockPokemon...)
 
 		mockPokemonController := &mocks.PokemonControllerMock{Mock: mock.Mock{}}
-		mockPokemonController.Mock.On("GetPokemonById", 1).Return(&mockListPokemon[0], nil)
+		mockPokemonController.Mock.On("GetPokemonByID", 1).Return(&mockListPokemon[0], nil)
 
 		c := controllers.NewPokemonController(mockPokemonController)
-		pokemons, err := c.GetPokemonById(mockListPokemon[0].Id)
+		pokemons, err := c.GetPokemonByID(mockListPokemon[0].ID)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, *pokemons)
@@ -166,9 +166,9 @@ func TestPokemonController_AddPokemon(t *testing.T) {
 	tests := []Test{
 		{
 			Name: "Add Pokemon Success",
-			MockPokemon: &[]pokemon.PokemonFiled{
+			MockPokemon: &[]pokemon.Entity{
 				{
-					Id: 1,
+					ID: 1,
 					Name: "Pikachu",
 					Species: "Mouse",
 				},
@@ -179,11 +179,11 @@ func TestPokemonController_AddPokemon(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.Name, func(t *testing.T) {
-			mockListPokemon := make([]pokemon.PokemonFiled, 0)
+			mockListPokemon := make([]pokemon.Entity, 0)
 			mockListPokemon = append(mockListPokemon, *tc.MockPokemon...)
 
 			mockPokemonController := &mocks.PokemonControllerMock{Mock: mock.Mock{}}
-			mockPokemonController.Mock.On("AddPokemon", mock.AnythingOfType("*pokemon.PokemonFiled")).Return(&mockListPokemon[0], nil)
+			mockPokemonController.Mock.On("AddPokemon", mock.AnythingOfType("*pokemon.Entity")).Return(&mockListPokemon[0], nil)
 
 			c := controllers.NewPokemonController(mockPokemonController)
 			pokemons, err := c.AddPokemon(&mockListPokemon[0])
@@ -192,7 +192,7 @@ func TestPokemonController_AddPokemon(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.NotNil(t, pokemons)
-			assert.Equal(t, expected, pokemons.Id)
+			assert.Equal(t, expected, pokemons.ID)
 		})
 	}
 }

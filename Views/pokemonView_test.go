@@ -18,26 +18,26 @@ import (
 func TestPokemonView_GetPokemons(t *testing.T) {
 	tests := []struct {
 		Name         string
-		MockPokemon  *[]pokemon.PokemonFiled
+		MockPokemon  *[]pokemon.Entity
 		ErrorMessage error
 		StatusCode   int
 		Expected     string
 	}{
 		{
 			Name: "Get Pokemons Success",
-			MockPokemon: &[]pokemon.PokemonFiled{
+			MockPokemon: &[]pokemon.Entity{
 				{
-					Id:      1,
+					ID:      1,
 					Name:    "Pikachu",
 					Species: "Mouse",
 				},
 				{
-					Id:      2,
+					ID:      2,
 					Name:    "Charmander",
 					Species: "Lizard Pokémon",
 				},
 				{
-					Id:      3,
+					ID:      3,
 					Name:    "Squirtle",
 					Species: "Tiny Turtle Pokémon",
 				},
@@ -48,9 +48,9 @@ func TestPokemonView_GetPokemons(t *testing.T) {
 		},
 		{
 			Name: "Get Pokemon Failed",
-			MockPokemon: &[]pokemon.PokemonFiled{
+			MockPokemon: &[]pokemon.Entity{
 				{
-					Id:      1,
+					ID:      1,
 					Name:    "Pikachu",
 					Species: "Mouse",
 				},
@@ -63,7 +63,7 @@ func TestPokemonView_GetPokemons(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.Name, func(t *testing.T) {
-			mockListPokemon := make([]pokemon.PokemonFiled, 0)
+			mockListPokemon := make([]pokemon.Entity, 0)
 			mockListPokemon = append(mockListPokemon, *tc.MockPokemon...)
 
 			mockPokemonController := &mocks.PokemonControllerMock{Mock: mock.Mock{}}
@@ -84,10 +84,10 @@ func TestPokemonView_GetPokemons(t *testing.T) {
 	}
 }
 
-func TestPokemonView_GetPokemonById(t *testing.T) {
+func TestPokemonView_GetPokemonByID(t *testing.T) {
 	tests := []struct {
 		Name         string
-		MockPokemon  *pokemon.PokemonFiled
+		MockPokemon  *pokemon.Entity
 		PokemonID    int
 		ErrorMessage error
 		StatusCode   int
@@ -95,8 +95,8 @@ func TestPokemonView_GetPokemonById(t *testing.T) {
 	}{
 		{
 			Name: "Get Pokemon Id Success",
-			MockPokemon: &pokemon.PokemonFiled{
-				Id:      1,
+			MockPokemon: &pokemon.Entity{
+				ID:      1,
 				Name:    "Pikachu",
 				Species: "Mouse",
 			},
@@ -115,8 +115,8 @@ func TestPokemonView_GetPokemonById(t *testing.T) {
 		},
 		{
 			Name: "Get Pokemon Id Internal Server Error",
-			MockPokemon: &pokemon.PokemonFiled{
-				Id:      1,
+			MockPokemon: &pokemon.Entity{
+				ID:      1,
 				Name:    "Pikachu",
 				Species: "Mouse",
 			},
@@ -130,7 +130,7 @@ func TestPokemonView_GetPokemonById(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.Name, func(t *testing.T) {
 			mockPokemonController := &mocks.PokemonControllerMock{Mock: mock.Mock{}}
-			mockPokemonController.Mock.On("GetPokemonById", tc.PokemonID).Return(tc.MockPokemon, tc.ErrorMessage)
+			mockPokemonController.Mock.On("GetPokemonByID", tc.PokemonID).Return(tc.MockPokemon, tc.ErrorMessage)
 
 			req, err := http.NewRequest(http.MethodGet, "/pokemon?id="+strconv.Itoa(tc.PokemonID), nil)
 			assert.NoError(t, err)
@@ -138,7 +138,7 @@ func TestPokemonView_GetPokemonById(t *testing.T) {
 			pokemonView := PokemonView{pokemonController: mockPokemonController}
 
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(pokemonView.GetPokemonById)
+			handler := http.HandlerFunc(pokemonView.GetPokemonByID)
 			handler.ServeHTTP(rr, req)
 
 			assert.Equal(t, tc.StatusCode, rr.Code)
@@ -150,15 +150,15 @@ func TestPokemonView_GetPokemonById(t *testing.T) {
 func TestPokemonView_AddPokemon(t *testing.T) {
 	tests := []struct {
 		Name         string
-		MockPokemon  *pokemon.PokemonFiled
+		MockPokemon  *pokemon.Entity
 		ErrorMessage error
 		StatusCode   int
 		Expected     string
 	}{
 		{
 			Name: "Add Pokemon Success",
-			MockPokemon: &pokemon.PokemonFiled{
-				Id:      1,
+			MockPokemon: &pokemon.Entity{
+				ID:      1,
 				Name:    "Pikachu",
 				Species: "Mouse",
 			},
@@ -178,7 +178,7 @@ func TestPokemonView_AddPokemon(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.Name, func(t *testing.T) {
 			mockPokemonController := &mocks.PokemonControllerMock{Mock: mock.Mock{}}
-			mockPokemonController.Mock.On("AddPokemon", mock.AnythingOfType("*pokemon.PokemonFiled")).Return(tc.MockPokemon, tc.ErrorMessage)
+			mockPokemonController.Mock.On("AddPokemon", mock.AnythingOfType("*pokemon.Entity")).Return(tc.MockPokemon, tc.ErrorMessage)
 
 			pokemonMarshal, _ := json.Marshal(tc.MockPokemon)
 			req, err := http.NewRequest(http.MethodPost, "/pokemon", bytes.NewBuffer(pokemonMarshal))

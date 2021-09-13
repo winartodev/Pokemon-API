@@ -1,19 +1,19 @@
 package pokemon
 
-type PokemonFiled struct {
-	Id      int    `json:"id"`
+type Entity struct {
+	ID      int    `json:"id"`
 	Name    string `json:"name"`
 	Species string `json:"species"`
 }
 
-type PokemonInterface interface {
-	GetPokemons() ([]PokemonFiled, error)
-	GetPokemonById(id int) (*PokemonFiled, error)
-	AddPokemon(data *PokemonFiled) (*PokemonFiled, error)
+type ModelInterface interface {
+	GetPokemons() ([]Entity, error)
+	GetPokemonByID(id int) (*Entity, error)
+	AddPokemon(data *Entity) (*Entity, error)
 }
 
-type PokemonController interface {
-	GetPokemons() ([]PokemonFiled, error)
-	GetPokemonById(id int) (*PokemonFiled, error)
-	AddPokemon(data *PokemonFiled) (*PokemonFiled, error)
+type ControllerInterface interface {
+	GetPokemons() ([]Entity, error)
+	GetPokemonByID(id int) (*Entity, error)
+	AddPokemon(data *Entity) (*Entity, error)
 }

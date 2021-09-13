@@ -9,13 +9,13 @@ type PokemonMysql struct {
 	DB  *sql.DB
 }
 
-func Connect(db *sql.DB) pokemon.PokemonInterface {
+func Connect(db *sql.DB) pokemon.ModelInterface {
 	return &PokemonMysql {
 		DB: db,
 	}
 }
 
-func (m *PokemonMysql) GetPokemons() ([]pokemon.PokemonFiled, error) {
+func (m *PokemonMysql) GetPokemons() ([]pokemon.Entity, error) {
 	rows, err := m.DB.Query("SELECT * FROM pokemon")
 
 	if err != nil {
@@ -24,12 +24,12 @@ func (m *PokemonMysql) GetPokemons() ([]pokemon.PokemonFiled, error) {
 
 	defer rows.Close()
 
-	var pokemons = []pokemon.PokemonFiled{} 
+	var pokemons = []pokemon.Entity{} 
 
 	for rows.Next() {
-		var p pokemon.PokemonFiled
+		var p pokemon.Entity
 
-		err := rows.Scan(&p.Id, &p.Name, &p.Species)
+		err := rows.Scan(&p.ID, &p.Name, &p.Species)
 
 		if err != nil {
 			return nil, err
@@ -45,12 +45,11 @@ func (m *PokemonMysql) GetPokemons() ([]pokemon.PokemonFiled, error) {
 	return pokemons, nil
 }
 
-func (m *PokemonMysql) GetPokemonById(id int) (*pokemon.PokemonFiled, error) {
-	var p pokemon.PokemonFiled
-	err := m.DB.QueryRow("SELECT * FROM pokemon WHERE id = ?", id).Scan(&p.Id, &p.Name, &p.Species)
+func (m *PokemonMysql) GetPokemonByID(id int) (*pokemon.Entity, error) {
+	var p pokemon.Entity
+	err := m.DB.QueryRow("SELECT * FROM pokemon WHERE id = ?", id).Scan(&p.ID, &p.Name, &p.Species)
 	if err != nil {
-		switch {
-		case err == sql.ErrNoRows:
+		if err == sql.ErrNoRows{ 
 			return nil, err
 		}
 		return nil, err
@@ -59,14 +58,14 @@ func (m *PokemonMysql) GetPokemonById(id int) (*pokemon.PokemonFiled, error) {
 	return &p, nil
 }
 
-func (m *PokemonMysql) AddPokemon(p *pokemon.PokemonFiled) (*pokemon.PokemonFiled, error) {
+func (m *PokemonMysql) AddPokemon(p *pokemon.Entity) (*pokemon.Entity, error) {
 	statement, err := m.DB.Prepare("INSERT INTO pokemon (id, name, species) VALUES (?, ?, ?)")
 
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := statement.Exec(&p.Id, &p.Name, &p.Species)
+	result, err := statement.Exec(&p.ID, &p.Name, &p.Species)
 
 	if err != nil {
 		return nil, err

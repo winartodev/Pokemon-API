@@ -9,7 +9,7 @@ import (
 )
 
 type PokemonView struct {
-	pokemonController pokemon.PokemonController
+	pokemonController pokemon.ControllerInterface
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
@@ -20,17 +20,18 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(response)
+	// w.Write(response)
+	fmt.Fprint(w, string(response))
 }
 
-func EndpointsHandler(pokemonController pokemon.PokemonController) {
+func EndpointsHandler(pokemonController pokemon.ControllerInterface) {
 	handler := &PokemonView{
 		pokemonController: pokemonController,
 	}
 
 	http.HandleFunc("/", route)
 	http.HandleFunc("/pokemons", handler.GetPokemons)
-	http.HandleFunc("/pokemon", handler.GetPokemonById)
+	http.HandleFunc("/pokemon", handler.GetPokemonByID)
 }
 
 func route(w http.ResponseWriter, r *http.Request) {
@@ -49,11 +50,11 @@ func (v *PokemonView) GetPokemons(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (v *PokemonView) GetPokemonById(w http.ResponseWriter, r *http.Request) {
+func (v *PokemonView) GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		id, _ := strconv.Atoi(r.FormValue("id"))
 
-		row, err := v.pokemonController.GetPokemonById(id)
+		row, err := v.pokemonController.GetPokemonByID(id)
 
 		if row == nil {
 			message := fmt.Sprintf("Id %v Not Found", id)
@@ -76,7 +77,7 @@ func (v *PokemonView) GetPokemonById(w http.ResponseWriter, r *http.Request) {
 func (v *PokemonView) AddPokemon(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		newPoke := json.NewDecoder(r.Body)
-		var pokemon pokemon.PokemonFiled
+		var pokemon pokemon.Entity
 		err := newPoke.Decode(&pokemon)
 
 		if err != nil {
@@ -91,7 +92,7 @@ func (v *PokemonView) AddPokemon(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		respondWithJSON(w, http.StatusOK, fmt.Sprintf("Id Pokemon %v Created", row.Id))
+		respondWithJSON(w, http.StatusOK, fmt.Sprintf("Id Pokemon %v Created", row.ID))
 	}
 }
 

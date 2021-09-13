@@ -1,0 +1,13 @@
+run:
+  timeout: 1m
+  skip-files:
+    - .*_test.go
+
+linters:
+  disable-all: false
+  enable:
+    - revive
+    - gocritic
+    - stylecheck
+    - gosec
+    - unconvert

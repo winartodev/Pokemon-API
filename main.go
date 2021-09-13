@@ -5,6 +5,8 @@ import (
 	models "Pokemon-API/Models"
 	view "Pokemon-API/Views"
 	"database/sql"
+	"flag"
+	"log"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -18,5 +20,10 @@ func main() {
 	pokemonInterface := models.Connect(db)
 	pokemonController := controllers.NewPokemonController(pokemonInterface)
 	view.EndpointsHandler(pokemonController)
-	http.ListenAndServe(":8080", nil)
+
+	addr := flag.String("addr", ":8080", "Http Listen And Serve")
+	e := http.ListenAndServe(*addr, nil)
+	if e == nil {
+		log.Fatal("ListenAndServe:", err)
+	}
 }

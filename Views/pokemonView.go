@@ -12,10 +12,12 @@ type PokemonView struct {
 	pokemonController pokemon.ControllerInterface
 }
 
+// respondWithError to show error code and error message
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
 }
 
+// respondWithJSON to show response code and body into client
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
 	w.Header().Set("Content-Type", "application/json")
@@ -24,6 +26,7 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	fmt.Fprint(w, string(response))
 }
 
+// EndpointsHnadler handle all endpoints
 func EndpointsHandler(pokemonController pokemon.ControllerInterface) {
 	handler := &PokemonView{
 		pokemonController: pokemonController,
@@ -40,8 +43,9 @@ func route(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetPokemons is used to get all pokemon
 func (v *PokemonView) GetPokemons(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet{
+	if r.Method == http.MethodGet {
 		rows, err := v.pokemonController.GetPokemons()
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -50,6 +54,7 @@ func (v *PokemonView) GetPokemons(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetPokemonByID is used to get pokemon by id
 func (v *PokemonView) GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		id, _ := strconv.Atoi(r.FormValue("id"))
@@ -60,20 +65,21 @@ func (v *PokemonView) GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 			message := fmt.Sprintf("Id %v Not Found", id)
 			respondWithError(w, http.StatusNotFound, message)
 			return
-		} 
-		
-		if err != nil { 
+		}
+
+		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
 		respondWithJSON(w, http.StatusOK, &row)
-		
+
 	} else {
 		v.AddPokemon(w, r)
 	}
 }
 
+// AddPokemon is used to create new pokemon
 func (v *PokemonView) AddPokemon(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		newPoke := json.NewDecoder(r.Body)
@@ -95,4 +101,3 @@ func (v *PokemonView) AddPokemon(w http.ResponseWriter, r *http.Request) {
 		respondWithJSON(w, http.StatusOK, fmt.Sprintf("Id Pokemon %v Created", row.ID))
 	}
 }
-

@@ -6,15 +6,17 @@ import (
 )
 
 type PokemonMysql struct {
-	DB  *sql.DB
+	DB *sql.DB
 }
 
+// Initialize sql to modelInterface
 func Connect(db *sql.DB) pokemon.ModelInterface {
-	return &PokemonMysql {
+	return &PokemonMysql{
 		DB: db,
 	}
 }
 
+// GetPokemons return all data pokemon
 func (m *PokemonMysql) GetPokemons() ([]pokemon.Entity, error) {
 	rows, err := m.DB.Query("SELECT * FROM pokemon")
 
@@ -24,7 +26,7 @@ func (m *PokemonMysql) GetPokemons() ([]pokemon.Entity, error) {
 
 	defer rows.Close()
 
-	var pokemons = []pokemon.Entity{} 
+	var pokemons = []pokemon.Entity{}
 
 	for rows.Next() {
 		var p pokemon.Entity
@@ -45,19 +47,21 @@ func (m *PokemonMysql) GetPokemons() ([]pokemon.Entity, error) {
 	return pokemons, nil
 }
 
+// GetPokemonByID return specific pokemon by ID
 func (m *PokemonMysql) GetPokemonByID(id int) (*pokemon.Entity, error) {
 	var p pokemon.Entity
 	err := m.DB.QueryRow("SELECT * FROM pokemon WHERE id = ?", id).Scan(&p.ID, &p.Name, &p.Species)
 	if err != nil {
-		if err == sql.ErrNoRows{ 
+		if err == sql.ErrNoRows {
 			return nil, err
 		}
 		return nil, err
 	}
-	
+
 	return &p, nil
 }
 
+// AddPokemon return new pokemon after insert query success
 func (m *PokemonMysql) AddPokemon(p *pokemon.Entity) (*pokemon.Entity, error) {
 	statement, err := m.DB.Prepare("INSERT INTO pokemon (id, name, species) VALUES (?, ?, ?)")
 
@@ -76,4 +80,4 @@ func (m *PokemonMysql) AddPokemon(p *pokemon.Entity) (*pokemon.Entity, error) {
 	}
 
 	return p, nil
-} 
+}

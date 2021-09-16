@@ -5,17 +5,18 @@ import (
 )
 
 type PokemonController struct {
-	pokemonInf pokemon.ModelInterface
+	pokemonModel pokemon.ModelInterface
 }
 
-func NewPokemonController(pokemonInf pokemon.ModelInterface) pokemon.ControllerInterface {
-	return &PokemonController {
-		pokemonInf: pokemonInf,
+func NewPokemonController(pokemonModel pokemon.ModelInterface) pokemon.ControllerInterface {
+	return &PokemonController{
+		pokemonModel: pokemonModel,
 	}
 }
 
-func (c *PokemonController) GetPokemons() ([]pokemon.Entity, error){
-	rows, err := c.pokemonInf.GetPokemons()
+// GetPokemon method to return all data pokemon
+func (c *PokemonController) GetPokemons() ([]pokemon.Entity, error) {
+	rows, err := c.pokemonModel.GetPokemons()
 	if err != nil {
 		return nil, err
 	}
@@ -23,11 +24,11 @@ func (c *PokemonController) GetPokemons() ([]pokemon.Entity, error){
 }
 
 func (c *PokemonController) GetPokemonByID(id int) (*pokemon.Entity, error) {
-	row, _ := c.pokemonInf.GetPokemonByID(id)
+	row, _ := c.pokemonModel.GetPokemonByID(id)
 	return row, nil
 }
 
 func (c *PokemonController) AddPokemon(data *pokemon.Entity) (*pokemon.Entity, error) {
-	p, err := c.pokemonInf.AddPokemon(data)
+	p, err := c.pokemonModel.AddPokemon(data)
 	return p, err
 }

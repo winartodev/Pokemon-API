@@ -1,7 +1,9 @@
 package view
 
 import (
+	errorhandler "Pokemon-API/Error"
 	pokemon "Pokemon-API/Pokemon"
+	response "Pokemon-API/Response"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,20 +12,6 @@ import (
 
 type PokemonView struct {
 	pokemonController pokemon.ControllerInterface
-}
-
-// respondWithError to show error code and error message
-func respondWithError(w http.ResponseWriter, code int, message string) {
-	respondWithJSON(w, code, map[string]string{"error": message})
-}
-
-// respondWithJSON to show response code and body into client
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	// w.Write(response)
-	fmt.Fprint(w, string(response))
 }
 
 // EndpointsHnadler handle all endpoints
@@ -48,9 +36,12 @@ func (v *PokemonView) GetPokemons(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		rows, err := v.pokemonController.GetPokemons()
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, err.Error())
+			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusInternalServerError, err))
+			response.RespondWithJSON(w, respond, http.StatusInternalServerError)
+			return
 		}
-		respondWithJSON(w, http.StatusOK, rows)
+		respond := response.NewResponseSuccess(rows)
+		response.RespondWithJSON(w, respond, http.StatusOK)
 	}
 }
 
@@ -61,19 +52,20 @@ func (v *PokemonView) GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 
 		row, err := v.pokemonController.GetPokemonByID(id)
 
-		if row == nil {
-			message := fmt.Sprintf("Id %v Not Found", id)
-			respondWithError(w, http.StatusNotFound, message)
+		if row != nil && err != nil {
+			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusNotFound, err))
+			response.RespondWithJSON(w, respond, http.StatusNotFound)
 			return
 		}
 
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, err.Error())
+			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusInternalServerError, err))
+			response.RespondWithJSON(w, respond, http.StatusInternalServerError)
 			return
 		}
 
-		respondWithJSON(w, http.StatusOK, &row)
-
+		respond := response.NewResponseSuccess(row)
+		response.RespondWithJSON(w, respond, http.StatusOK)
 	} else {
 		v.AddPokemon(w, r)
 	}
@@ -87,17 +79,20 @@ func (v *PokemonView) AddPokemon(w http.ResponseWriter, r *http.Request) {
 		err := newPoke.Decode(&pokemon)
 
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, err.Error())
+			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusInternalServerError, err))
+			response.RespondWithJSON(w, respond, http.StatusInternalServerError)
 			return
 		}
 
 		row, err := v.pokemonController.AddPokemon(&pokemon)
 
 		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, err.Error())
+			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusBadRequest, err))
+			response.RespondWithJSON(w, respond, http.StatusBadRequest)
 			return
 		}
 
-		respondWithJSON(w, http.StatusOK, fmt.Sprintf("Id Pokemon %v Created", row.ID))
+		respond := response.NewPokemonCreateSuccess(row.ID)
+		response.RespondWithJSON(w, respond, http.StatusOK)
 	}
 }

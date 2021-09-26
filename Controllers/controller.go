@@ -2,6 +2,7 @@ package controllers
 
 import (
 	pokemon "Pokemon-API/Pokemon"
+	"fmt"
 )
 
 type PokemonController struct {
@@ -27,12 +28,20 @@ func (c *PokemonController) GetPokemons() ([]pokemon.Entity, error) {
 }
 
 // GetPokemonByID method to return specified data pokemon by ID
-func (c *PokemonController) GetPokemonByID(id int) (*pokemon.Entity, error) {
+func (c *PokemonController) GetPokemonByID(id int) (*[]pokemon.Entity, error) {
 	// refer to pokemonModel and call GetPokemonByID function
 	// which is used to querying pokemon data by ID into db
 	// and return 2 values
-	row, _ := c.pokemonModel.GetPokemonByID(id)
-	return row, nil
+	rows, err := c.pokemonModel.GetPokemonByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(*rows) == 0 {
+		return rows, fmt.Errorf("id %d not found", id)
+	}
+
+	return rows, nil
 }
 
 // Add pokemon method to return pokemon.Entity by data parameter

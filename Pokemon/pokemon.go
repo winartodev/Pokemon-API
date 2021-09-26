@@ -8,12 +8,12 @@ type Entity struct {
 
 type ModelInterface interface {
 	GetPokemons() ([]Entity, error)
-	GetPokemonByID(id int) (*Entity, error)
+	GetPokemonByID(id int) (*[]Entity, error)
 	AddPokemon(data *Entity) (*Entity, error)
 }
 
 type ControllerInterface interface {
 	GetPokemons() ([]Entity, error)
-	GetPokemonByID(id int) (*Entity, error)
+	GetPokemonByID(id int) (*[]Entity, error)
 	AddPokemon(data *Entity) (*Entity, error)
 }

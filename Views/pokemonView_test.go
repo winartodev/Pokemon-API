@@ -44,7 +44,7 @@ func TestPokemonView_GetPokemons(t *testing.T) {
 			},
 			ErrorMessage: nil,
 			StatusCode:   http.StatusOK,
-			Expected:     `[{"id":1,"name":"Pikachu","species":"Mouse"},{"id":2,"name":"Charmander","species":"Lizard Pokémon"},{"id":3,"name":"Squirtle","species":"Tiny Turtle Pokémon"}]`,
+			Expected:     `{"http_code":200,"http_status":"OK","message":"Success","data":[{"id":1,"name":"Pikachu","species":"Mouse"},{"id":2,"name":"Charmander","species":"Lizard Pokémon"},{"id":3,"name":"Squirtle","species":"Tiny Turtle Pokémon"}]}`,
 		},
 		{
 			Name: "Get Pokemon Failed",
@@ -57,7 +57,7 @@ func TestPokemonView_GetPokemons(t *testing.T) {
 			},
 			ErrorMessage: errors.New("Internal Server Error"),
 			StatusCode:   http.StatusInternalServerError,
-			Expected:     `{"error":"Internal Server Error"}[{"id":1,"name":"Pikachu","species":"Mouse"}]`,
+			Expected:     `{"http_code":500,"http_status":"Internal Server Error","error":"Internal Server Error"}`,
 		},
 	}
 
@@ -87,7 +87,7 @@ func TestPokemonView_GetPokemons(t *testing.T) {
 func TestPokemonView_GetPokemonByID(t *testing.T) {
 	tests := []struct {
 		Name         string
-		MockPokemon  *pokemon.Entity
+		MockPokemon  *[]pokemon.Entity
 		PokemonID    int
 		ErrorMessage error
 		StatusCode   int
@@ -95,35 +95,39 @@ func TestPokemonView_GetPokemonByID(t *testing.T) {
 	}{
 		{
 			Name: "Get Pokemon Id Success",
-			MockPokemon: &pokemon.Entity{
-				ID:      1,
-				Name:    "Pikachu",
-				Species: "Mouse",
+			MockPokemon: &[]pokemon.Entity{
+				{
+					ID:      1,
+					Name:    "Pikachu",
+					Species: "Mouse",
+				},
 			},
 			PokemonID:    1,
 			ErrorMessage: nil,
 			StatusCode:   http.StatusOK,
-			Expected:     `{"id":1,"name":"Pikachu","species":"Mouse"}`,
+			Expected:     `{"http_code":200,"http_status":"OK","message":"Success","data":[{"id":1,"name":"Pikachu","species":"Mouse"}]}`,
 		},
 		{
 			Name:         "Get Pokemon Id Not Found",
 			MockPokemon:  nil,
 			PokemonID:    2,
 			ErrorMessage: errors.New("Id 2 Not Found"),
-			StatusCode:   http.StatusNotFound,
-			Expected:     `{"error":"Id 2 Not Found"}`,
+			StatusCode:   http.StatusInternalServerError,
+			Expected:     `{"http_code":500,"http_status":"Internal Server Error","error":"Id 2 Not Found"}`,
 		},
 		{
 			Name: "Get Pokemon Id Internal Server Error",
-			MockPokemon: &pokemon.Entity{
-				ID:      1,
-				Name:    "Pikachu",
-				Species: "Mouse",
+			MockPokemon: &[]pokemon.Entity{
+				{
+					ID:      1,
+					Name:    "Pikachu",
+					Species: "Mouse",
+				},
 			},
 			PokemonID:    1,
 			ErrorMessage: errors.New("Internal Server Error"),
-			StatusCode:   http.StatusInternalServerError,
-			Expected:     `{"error":"Internal Server Error"}`,
+			StatusCode:   http.StatusNotFound,
+			Expected:     `{"http_code":404,"http_status":"Not Found","error":"Internal Server Error"}`,
 		},
 	}
 
@@ -164,14 +168,14 @@ func TestPokemonView_AddPokemon(t *testing.T) {
 			},
 			ErrorMessage: nil,
 			StatusCode:   http.StatusOK,
-			Expected:     `"Id Pokemon 1 Created"`,
+			Expected:     `{"http_code":200,"http_status":"OK","message":"Success","data":{"status":"id pokemon 1 create"}}`,
 		},
 		{
 			Name:         "Add Pokemon Internal Server Error",
 			MockPokemon:  nil,
 			ErrorMessage: errors.New("Internal Server Error"),
-			StatusCode:   http.StatusInternalServerError,
-			Expected:     `{"error":"Internal Server Error"}`,
+			StatusCode:   http.StatusBadRequest,
+			Expected:     `{"http_code":400,"http_status":"Bad Request","error":"Internal Server Error"}`,
 		},
 	}
 

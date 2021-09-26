@@ -48,17 +48,30 @@ func (m *PokemonMysql) GetPokemons() ([]pokemon.Entity, error) {
 }
 
 // GetPokemonByID return specific pokemon by ID
-func (m *PokemonMysql) GetPokemonByID(id int) (*pokemon.Entity, error) {
-	var p pokemon.Entity
-	err := m.DB.QueryRow("SELECT * FROM pokemon WHERE id = ?", id).Scan(&p.ID, &p.Name, &p.Species)
+func (m *PokemonMysql) GetPokemonByID(id int) (*[]pokemon.Entity, error) {
+	rows, err := m.DB.Query("SELECT * FROM pokemon WHERE id = ?", id)
+
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, err
-		}
 		return nil, err
 	}
 
-	return &p, nil
+	defer rows.Close()
+
+	var pokemons = []pokemon.Entity{}
+
+	for rows.Next() {
+		var p pokemon.Entity
+
+		err := rows.Scan(&p.ID, &p.Name, &p.Species)
+
+		if err != nil {
+			return nil, err
+		}
+
+		pokemons = append(pokemons, p)
+	}
+
+	return &pokemons, nil
 }
 
 // AddPokemon return new pokemon after insert query success

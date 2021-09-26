@@ -15,10 +15,10 @@ import (
 )
 
 type Test struct {
-	Name 			string
-	MockPokemon		*[]pokemon.Entity
-	ErrorMessage	error
-	Expected 		string
+	Name         string
+	MockPokemon  *[]pokemon.Entity
+	ErrorMessage error
+	Expected     string
 }
 
 func TestPokemonController_GetPokemons(t *testing.T) {
@@ -27,56 +27,56 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 			Name: "Get Pokemon 6 Row Success ",
 			MockPokemon: &[]pokemon.Entity{
 				{
-					ID: 1,
-					Name: "Bulbasaur",
+					ID:      1,
+					Name:    "Bulbasaur",
 					Species: "Seed Pokémon",
 				},
 				{
-					ID: 2,
-					Name: "Charmander",
+					ID:      2,
+					Name:    "Charmander",
 					Species: "Lizard Pokémon",
 				},
 				{
-					ID: 3,
-					Name: "Squirtle",
+					ID:      3,
+					Name:    "Squirtle",
 					Species: "Tiny Turtle Pokémon",
 				},
 				{
-					ID: 4,
-					Name: "Raticate",
+					ID:      4,
+					Name:    "Raticate",
 					Species: "Mouse Pokémon",
 				},
 				{
-					ID: 5,
-					Name: "Rattata",
+					ID:      5,
+					Name:    "Rattata",
 					Species: "Mouse Pokémon",
 				},
 				{
-					ID: 6,
-					Name: "Rattata",
+					ID:      6,
+					Name:    "Rattata",
 					Species: "Mouse Pokémon",
 				},
 			},
 			ErrorMessage: nil,
-			Expected: `[{1 Bulbasaur Seed Pokémon} {2 Charmander Lizard Pokémon} {3 Squirtle Tiny Turtle Pokémon} {4 Raticate Mouse Pokémon} {5 Rattata Mouse Pokémon} {6 Rattata Mouse Pokémon}]`,
+			Expected:     `[{1 Bulbasaur Seed Pokémon} {2 Charmander Lizard Pokémon} {3 Squirtle Tiny Turtle Pokémon} {4 Raticate Mouse Pokémon} {5 Rattata Mouse Pokémon} {6 Rattata Mouse Pokémon}]`,
 		},
 		{
 			Name: "Get Pokemon 1 Row Success ",
 			MockPokemon: &[]pokemon.Entity{
-				{	
-					ID: 1,
-					Name: "Pikachu",
+				{
+					ID:      1,
+					Name:    "Pikachu",
 					Species: "Mouse",
 				},
 			},
 			ErrorMessage: nil,
-			Expected: `[{1 Pikachu Mouse}]`,
+			Expected:     `[{1 Pikachu Mouse}]`,
 		},
 		{
-			Name: "Get Pokemon Empty Row Success",
-			MockPokemon: &[]pokemon.Entity{},
+			Name:         "Get Pokemon Empty Row Success",
+			MockPokemon:  &[]pokemon.Entity{},
 			ErrorMessage: nil,
-			Expected: `[]`,
+			Expected:     `[]`,
 		},
 	}
 
@@ -104,13 +104,13 @@ func TestPokemonView_GetPokemons_Failed(t *testing.T) {
 			Name: "Get Pokemon Failed",
 			MockPokemon: &[]pokemon.Entity{
 				{
-					ID: 1,
-					Name: "Pikachu",
+					ID:      1,
+					Name:    "Pikachu",
 					Species: "Mouse",
 				},
 			},
 			ErrorMessage: errors.New("Data Unreadable"),
-			Expected: `[]`,
+			Expected:     `[]`,
 		},
 	}
 
@@ -136,22 +136,23 @@ func TestPokemonController_GetPokemonByID(t *testing.T) {
 	tests := []Test{
 		{
 			Name: "Get Pokemon By Id Success",
-			MockPokemon: &[]pokemon.Entity {
-				{	ID: 1,
-					Name: "Pikachu",
+			MockPokemon: &[]pokemon.Entity{
+				{
+					ID:      1,
+					Name:    "Pikachu",
 					Species: "Mouse",
 				},
 			},
-			Expected: `{1 Pikachu Mouse}`,
+			Expected: `[{1 Pikachu Mouse}]`,
 		},
 	}
-	
+
 	for _, tc := range tests {
-			mockListPokemon := make([]pokemon.Entity, 0)
-			mockListPokemon = append(mockListPokemon, *tc.MockPokemon...)
+		mockListPokemon := make([]pokemon.Entity, 0)
+		mockListPokemon = append(mockListPokemon, *tc.MockPokemon...)
 
 		mockPokemonController := &mocks.PokemonControllerMock{Mock: mock.Mock{}}
-		mockPokemonController.Mock.On("GetPokemonByID", 1).Return(&mockListPokemon[0], nil)
+		mockPokemonController.Mock.On("GetPokemonByID", 1).Return(&mockListPokemon, nil)
 
 		c := controllers.NewPokemonController(mockPokemonController)
 		pokemons, err := c.GetPokemonByID(mockListPokemon[0].ID)
@@ -168,8 +169,8 @@ func TestPokemonController_AddPokemon(t *testing.T) {
 			Name: "Add Pokemon Success",
 			MockPokemon: &[]pokemon.Entity{
 				{
-					ID: 1,
-					Name: "Pikachu",
+					ID:      1,
+					Name:    "Pikachu",
 					Species: "Mouse",
 				},
 			},

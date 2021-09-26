@@ -17,12 +17,12 @@ func (controller *PokemonControllerMock) GetPokemons() ([]pokemon.Entity, error)
 }
 
 // GetPokemonByID this mock can return specified data pokemon by ID
-func (controller *PokemonControllerMock) GetPokemonByID(id int) (*pokemon.Entity, error) {
+func (controller *PokemonControllerMock) GetPokemonByID(id int) (*[]pokemon.Entity, error) {
 	args := controller.Mock.Called(id)
 	if args.Get(0) == nil {
 		return nil, args.Error(0)
 	}
-	return args.Get(0).(*pokemon.Entity), args.Error(1)
+	return args.Get(0).(*[]pokemon.Entity), args.Error(1)
 }
 
 // AddPokemon this mock can return new pokemon

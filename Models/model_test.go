@@ -19,10 +19,10 @@ func TestPokemonMysql_GetPokemons(t *testing.T) {
 
 	t.Run("Get Pokemons Success Retrieve All Data", func(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"id", "name", "species"}).
-				AddRow(1, "Bulbasaur", "Seed Pokémon").
-				AddRow(2, "Charmander", "Lizard Pokémon").
-				AddRow(3, "Squirtle", "Tiny Turtle Pokémon").
-				AddRow(4, "Raticate", "Mouse Pokémon")
+			AddRow(1, "Bulbasaur", "Seed Pokémon").
+			AddRow(2, "Charmander", "Lizard Pokémon").
+			AddRow(3, "Squirtle", "Tiny Turtle Pokémon").
+			AddRow(4, "Raticate", "Mouse Pokémon")
 
 		query := "SELECT (.+) FROM pokemon"
 
@@ -75,7 +75,7 @@ func TestPokemonMysql_GetPokemonById(t *testing.T) {
 
 	t.Run("Get Pokemon By Success Row Found", func(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"id", "name", "species"}).
-				AddRow(1, "Bulbasaur", "Seed Pokémon")
+			AddRow(1, "Bulbasaur", "Seed Pokémon")
 
 		query := "SELECT (.+) FROM pokemon WHERE id = \\?"
 
@@ -98,13 +98,13 @@ func TestPokemonMysql_GetPokemonById(t *testing.T) {
 		conn := model.Connect(db)
 		row, err := conn.GetPokemonByID(id)
 
-		assert.Error(t, err)
-		assert.Nil(t, row)
+		assert.NoError(t, err)
+		assert.NotNil(t, row)
 	})
-	
+
 	t.Run("Get Pokemon By Id Failed Query Error", func(t *testing.T) {
 		rows := sqlmock.NewRows([]string{"id", "name", "species"}).
-						AddRow(1, "Bulbasaur", "Seed Pokémon")
+			AddRow(1, "Bulbasaur", "Seed Pokémon")
 
 		query := "SELECTS (.+) FROMS pokemons WHERES ids = \\?"
 
@@ -128,36 +128,36 @@ func TestPokemonMysql_AddPokemon(t *testing.T) {
 
 	t.Run("Add Pokemon Success", func(t *testing.T) {
 		newPokemon := &pokemon.Entity{
-			ID: 1,
-			Name: "Ivysaur",
+			ID:      1,
+			Name:    "Ivysaur",
 			Species: "Seed Pokémon",
 		}
 
 		query := "INSERT INTO pokemon \\(id, name, species\\) VALUES \\(\\?, \\?, \\?\\)"
-		
+
 		prep := mock.ExpectPrepare(query)
 		prep.ExpectExec().WithArgs(newPokemon.ID, newPokemon.Name, newPokemon.Species).WillReturnResult(sqlmock.NewResult(0, 0))
 
 		conn := model.Connect(db)
-		_, err := conn.AddPokemon(newPokemon)	
+		_, err := conn.AddPokemon(newPokemon)
 
 		assert.NoError(t, err)
 	})
 
 	t.Run("Add Pokemon Failed Query Error", func(t *testing.T) {
 		newPokemon := &pokemon.Entity{
-			ID: 1,
-			Name: "Ivysaur",
+			ID:      1,
+			Name:    "Ivysaur",
 			Species: "Seed Pokémon",
 		}
 
 		query := "INSERT INTO pokemons \\(id, name, species\\) VALUES \\(\\?, \\?, \\?\\)"
-		
+
 		prep := mock.ExpectPrepare(query)
 		prep.ExpectExec().WithArgs(newPokemon.ID, newPokemon.Name, newPokemon.Species).WillReturnResult(sqlmock.NewResult(0, 0))
 
 		conn := model.Connect(db)
-		_, err = conn.AddPokemon(newPokemon)	
+		_, err = conn.AddPokemon(newPokemon)
 
 		assert.Error(t, err)
 	})
@@ -166,13 +166,13 @@ func TestPokemonMysql_AddPokemon(t *testing.T) {
 		newPokemon := &pokemon.Entity{}
 
 		query := "INSERT INTO pokemons \\(id, name, species\\) VALUES \\(\\?, \\?, \\?\\)"
-		
+
 		prep := mock.ExpectPrepare(query)
 		prep.ExpectExec().WithArgs(newPokemon.ID, newPokemon.Name).WillReturnResult(sqlmock.NewResult(0, 0))
 
 		conn := model.Connect(db)
-		_, err = conn.AddPokemon(newPokemon)	
-		
+		_, err = conn.AddPokemon(newPokemon)
+
 		assert.Error(t, err)
 	})
 }

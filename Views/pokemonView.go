@@ -6,6 +6,7 @@ import (
 	response "Pokemon-API/Response"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -38,6 +39,7 @@ func (v *PokemonView) GetPokemons(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusInternalServerError, err))
 			response.RespondWithJSON(w, respond, http.StatusInternalServerError)
+			log.Printf("GetPokemons | errors:%v ", err)
 			return
 		}
 		respond := response.NewResponseSuccess(rows)
@@ -55,12 +57,14 @@ func (v *PokemonView) GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 		if row != nil && err != nil {
 			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusNotFound, err))
 			response.RespondWithJSON(w, respond, http.StatusNotFound)
+			log.Printf("GetPokemonByID | errors:%v", err)
 			return
 		}
 
 		if err != nil {
 			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusInternalServerError, err))
 			response.RespondWithJSON(w, respond, http.StatusInternalServerError)
+			log.Printf("GetPokemonByID | errors:%v", err)
 			return
 		}
 
@@ -81,6 +85,7 @@ func (v *PokemonView) AddPokemon(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusInternalServerError, err))
 			response.RespondWithJSON(w, respond, http.StatusInternalServerError)
+			log.Printf("AddPokemon | errors:%v", err)
 			return
 		}
 
@@ -89,6 +94,7 @@ func (v *PokemonView) AddPokemon(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			respond := response.NewResponseError(errorhandler.GetErrorCode(http.StatusBadRequest, err))
 			response.RespondWithJSON(w, respond, http.StatusBadRequest)
+			log.Printf("AddPokemon | errors:%v", err)
 			return
 		}
 

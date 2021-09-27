@@ -6,6 +6,7 @@ import (
 	view "Pokemon-API/Views"
 	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -17,6 +18,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pokemonInterface := models.Connect(db)
 	pokemonController := controllers.NewPokemonController(pokemonInterface)
 	view.EndpointsHandler(pokemonController)
@@ -26,4 +28,5 @@ func main() {
 	if e == nil {
 		log.Fatal("ListenAndServe:", err)
 	}
+	fmt.Println("ListenAndServe:8080")
 }

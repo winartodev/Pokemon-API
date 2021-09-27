@@ -9,12 +9,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var (
+	username = os.Getenv("DB_USERNAME")
+	password = os.Getenv("DB_PASSWORD")
+	address  = os.Getenv("DB_ADDRESS")
+	port     = os.Getenv("DB_PORT")
+	dbname   = os.Getenv("DB_DBNAME")
+)
+
 func main() {
-	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/db_pokemon")
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, address, port, dbname))
 	if err != nil {
 		panic(err.Error())
 	}
